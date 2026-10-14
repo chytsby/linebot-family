@@ -1,0 +1,43 @@
+name: linebot-family 班級網站推播
+
+on:
+  schedule:
+    # UTC 時間，對應台灣時間 (UTC+8) 09:00 與 23:00
+    - cron: '0 1 * * *'
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run main.py
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_GROUP_ID: ${{ secrets.LINE_GROUP_ID }}
+          RAW_BASE_URL: ${{ secrets.RAW_BASE_URL }}
+          TZ: Asia/Taipei
+        run: python main.py
+
+      - name: Commit & push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json images/
+          git diff --cached --quiet || (git commit -m "chore: update state and images" && git push)
