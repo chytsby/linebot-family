@@ -4,7 +4,7 @@ on:
   schedule:
     # UTC 時間，對應台灣時間 (UTC+8) 15:00 與 18:30
     - cron: '23 8 * * *'
-    - cron: '21 10 * * *'
+    - cron: '21 7 * * *'
   workflow_dispatch:
 
 permissions:
