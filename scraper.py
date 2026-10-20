@@ -157,3 +157,59 @@ def get_albums() -> list[dict]:
         })
 
     return albums
+
+
+# ── News ─────────────────────────────────────────────────────────
+
+_NEWS_LINK_RE = re.compile(r"news/show\.asp\?news_id=(\d+)")
+
+
+def get_news() -> list[dict]:
+    """Return every announcement on the news list page.
+
+    Returns
+    -------
+    list[dict]
+        Each dict: ``{news_id: int, title: str, date: str, url: str}``.
+        *url* is the absolute URL to the announcement detail page.
+    """
+    soup = _fetch(config.NEWS_LIST_PATH)
+
+    news: list[dict] = []
+    seen_ids: set[int] = set()
+
+    for link in soup.find_all("a", href=_NEWS_LINK_RE):
+        m = _NEWS_LINK_RE.search(link["href"])
+        if m is None:
+            continue
+
+        news_id = int(m.group(1))
+        if news_id in seen_ids:
+            continue
+        seen_ids.add(news_id)
+
+        title = link.get_text(strip=True)
+
+        # Date lives in the sibling <td> of the row (the <a> sits in a
+        # <div> inside the first <td>; the date is the next <td>).
+        date_str = ""
+        row = link.find_parent("tr")
+        if row is not None:
+            tds = row.find_all("td")
+            if len(tds) >= 2:
+                date_match = re.search(r"(\d{4}/\d{1,2}/\d{1,2})",
+                                       tds[-1].get_text(strip=True))
+                if date_match:
+                    date_str = date_match.group(1)
+
+        abs_url = config.SITE_BASE_URL + config.NEWS_DETAIL_PATH.format(
+            news_id=news_id)
+
+        news.append({
+            "news_id": news_id,
+            "title": title,
+            "date": date_str,
+            "url": abs_url,
+        })
+
+    return news

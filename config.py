@@ -11,6 +11,8 @@ CALENDAR_PATH = "cld/Default.asp"
 HOMEWORK_DETAIL_PATH = "cld/show.asp?EventDate={date}"  # date = YYYY/M/D
 ALBUM_LIST_PATH = "pa/Default.asp"
 ALBUM_DETAIL_PATH = "pa/pt_all.asp?mainid={mainid}"
+NEWS_LIST_PATH = "main/Default.asp"
+NEWS_DETAIL_PATH = "news/show.asp?news_id={news_id}&news_item=1"
 
 # Attachment files live under this prefix
 ATTACHMENT_BASE_PATH = "up_files/cld/"

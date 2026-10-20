@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import requests
 
 import config
-from scraper import get_albums, get_today_homework
+from scraper import get_albums, get_news, get_today_homework
 from notifier import push_text, push_image
 
 _PROJECT_DIR = Path(__file__).resolve().parent
@@ -21,7 +21,7 @@ _IMAGES_DIR = _PROJECT_DIR / "images"
 def _load_state() -> dict:
     if _STATE_PATH.exists():
         return json.loads(_STATE_PATH.read_text(encoding="utf-8"))
-    return {"last_album_mainid": 0, "last_homework_date": None}
+    return {"last_album_mainid": 0, "last_news_id": 0, "last_homework_date": None}
 
 
 def _save_state(state: dict) -> None:
@@ -72,6 +72,31 @@ def _handle_albums(state: dict) -> None:
     state["last_album_mainid"] = max(a["mainid"] for a in new_albums)
 
 
+def _handle_news(state: dict) -> None:
+    """Check for new announcements and push title + link."""
+    news = get_news()
+    last_id = state.get("last_news_id", 0)
+    new_items = sorted(
+        [n for n in news if n["news_id"] > last_id],
+        key=lambda n: n["news_id"],
+    )
+
+    if not new_items:
+        print(f"[NEWS] no new announcements (last_news_id={last_id})")
+        return
+
+    for item in new_items:
+        msg = (
+            f"📢 新公告：{item['title']}\n"
+            f"日期：{item['date']}\n"
+            f"{item['url']}"
+        )
+        print(f"[NEWS] new: news_id={item['news_id']} {item['title']}")
+        push_text(msg)
+
+    state["last_news_id"] = max(n["news_id"] for n in new_items)
+
+
 def _handle_homework(state: dict) -> None:
     """Check today's homework and push notification + images."""
     hw = get_today_homework()
@@ -113,6 +138,7 @@ def main() -> None:
     print(f"[STATE] loaded: {state}")
 
     _handle_albums(state)
+    _handle_news(state)
     _handle_homework(state)
 
     _save_state(state)
