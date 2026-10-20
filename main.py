@@ -85,7 +85,7 @@ def _handle_homework(state: dict) -> None:
         return
 
     # Push text summary
-    msg = f"📝 今日作業 ({today_str})\n標題：{hw['title']}\n{hw['content']}"
+    msg = f"📝 今日作業 ({today_str})\n標題：{hw['title']}\n{hw['content']}\n\n🔗 {hw['url']}"
     print(f"[HOMEWORK] pushing for {today_str}: {hw['title']}")
     push_text(msg)
 

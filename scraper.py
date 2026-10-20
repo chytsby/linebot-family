@@ -45,6 +45,7 @@ def get_today_homework(date_str: str | None = None) -> dict | None:
         date_str = f"{now.year}/{now.month}/{now.day}"
 
     path = config.HOMEWORK_DETAIL_PATH.format(date=date_str)
+    detail_url = config.SITE_BASE_URL + path
     soup = _fetch(path)
 
     # The homework table uses <th> headers: 標題, 內容, 附檔 N
@@ -90,6 +91,7 @@ def get_today_homework(date_str: str | None = None) -> dict | None:
         "date": date_str,
         "title": title,
         "content": content,
+        "url": detail_url,
         "attachments": attachments,
     }
 
