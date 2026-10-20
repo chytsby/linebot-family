@@ -2,9 +2,9 @@ name: linebot-family 班級網站推播
 
 on:
   schedule:
-    # UTC 時間，對應台灣時間 (UTC+8) 12:21 與 13:23
+    # UTC 時間，對應台灣時間 (UTC+8) 12:21 與 16:23
     - cron: '21 4 * * *'
-    - cron: '23 5 * * *'
+    - cron: '23 8 * * *'
   workflow_dispatch:
 
 permissions:
